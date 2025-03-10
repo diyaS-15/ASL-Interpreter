@@ -6,10 +6,12 @@ CNN Model recognizes static ASL gestures, specifically the ASL alphabet
 
 ### Steps/Process
 1. Install opencv, mediapipe
-2. Set up hand recognition using mediapipe hands
-3. Install kagglehub
-4. Log into kaggle and download a API Token (kaggle.json) and save kaggle.json into a new directory using mkdir -p ~/.kaggle mv ~/Downloads/kaggle.json ~/.kaggle/kaggle.json chmod 600 ~/.kaggle/kaggle.json
-5. Download static gesture recognition dataset from kaggle
+    pip install opencv-python
+    pip install mediapipe
+3. Set up hand recognition using mediapipe hands
+4. Install kagglehub
+5. Log into kaggle and download a API Token (kaggle.json) and save kaggle.json into a new directory using mkdir -p ~/.kaggle mv ~/Downloads/kaggle.json ~/.kaggle/kaggle.json chmod 600 ~/.kaggle/kaggle.json
+6. Download static gesture recognition dataset from kaggle
 
 ## Phase 2: Dynamic Gesture Recognition using RNN 
 Sequence Model (RNN) recognizes dynamic ASL gestures
