@@ -32,8 +32,8 @@ mlpmodel = MLPClassifier(hidden_layer_sizes=(128, 64), max_iter=500, random_stat
 mlpmodel.fit(X_train, Y_train)
 Y_predict = mlpmodel.predict(X_test)
 
-#print(classification_report(Y_test, Y_predict))
-#print(confusion_matrix(Y_test, Y_predict))
+print(classification_report(Y_test, Y_predict))
+print(confusion_matrix(Y_test, Y_predict))
 
 joblib.dump(mlpmodel, 'asl_model.pkl')
 print("MLP updated")
