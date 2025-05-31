@@ -64,6 +64,5 @@ print(f"Saved {count} samples to data/asl_{label}.csv")
 
 print("Sample row length:", len(data[0]))
 
-df = pd.read_csv("data/asl_A.csv")
 print(df.shape)  # (100, 64)
 print(df.columns[-5:]) 
