@@ -12,7 +12,10 @@ const veggieList = ['ARTICHOKE', 'BROCCOLI', 'CABBAGE', 'CAULIFLOWER', 'CELERY',
 function getRandomWord() {
   const randIndex = Math.floor(Math.random() * fruitList.length);
   return fruitList[randIndex];
-  // #bcc99f #f0ccd1
+  // #bcc99f #f0ccd1 #abc4ab #f0d9cc
+  // pink: text-[#ef8a9b] bg-[#f4d6da]
+  // yellow: bg-[#f5e6c1] text-[#e6c269]
+  // teal: bg-[#d8ebe5] text-[#83c0ae]
 }
 
 export default function Home() {
@@ -58,16 +61,16 @@ export default function Home() {
   const gameLost = attempts <= 0;
 
   return (
-    <div className="text-center p-4">
-      <h1 className="text-3xl font-bold mb-6">ASL Hangman</h1>
-      {gameWon && <p className="text-green-600 font-bold text-xl">Correct! you win</p>}
-      {gameLost && <p className="text-red-600 font-bold text-xl">Game over. The word was {target}</p>}
-      <button onClick={handleNewGame} className="border-4 bg-gray-400 p-2 rounded-lg">New Game </button>
+    <div className="text-center p-4 font-gummy text-lg md:my-6">
+      <h1 className="text-5xl font-bold mb-6">ASL Hangman</h1>
+      {gameWon && <p className="text-green-600 font-bold text-xl mb-2">Correct! you win</p>}
+      {gameLost && <p className="text-red-600 font-bold text-xl mb-2">Game over. The word was {target}</p>}
+      <button onClick={handleNewGame} className="border-2 bg-[#f4d6da] p-2 rounded-lg text-[#ef8a9b]">New Game </button>
       <div className="md:grid grid-cols-2 md:mx-8">
       <div>
-      <p className="text-2xl mb-4">{blanks.join(' ')}</p>
-      <p className="mb-2">Attempts Left: {attempts}</p> {/* remove + replace w/ hangman figure later */}
-      <p className="mb-4">Guessed Letters: {guessedLetters.join(', ')}</p> {/* improve this UI, maybe put these under hangman in cute box */}
+      <p className="text-3xl mb-4 ">{blanks.join(' ')}</p>
+      <p className="mb-2 font-medium">Attempts Left: {attempts}</p> {/* remove + replace w/ hangman figure later */}
+      <p className="mb-4 font-medium">Guessed Letters: {guessedLetters.join(', ')}</p>
       <Image
       src="/asl_az.jpeg"
       width={500}
@@ -77,9 +80,9 @@ export default function Home() {
       </div>
       <div className="mt-10">
         <WebcamCapture onPredict={handleGuess} />
-        <p className="mt-4">Predicted Letter: <strong>{predictedLetter}</strong></p>
+        <p className="mt-4 text-xl mb-2">Predicted Letter: <strong>{predictedLetter}</strong></p>
         <button onClick={handleConfirmLetter} disabled={!predictedLetter || guessedLetters.includes(predictedLetter.toUpperCase()) ||
-            gameWon || gameLost} className="border-4 bg-gray-400 p-2 rounded-lg"> Enter guess </button>
+            gameWon || gameLost} className="border-2 p-2 rounded-lg bg-[#d8ebe5] text-[#83c0ae] "> Enter guess </button>
 
       </div>
       </div>
