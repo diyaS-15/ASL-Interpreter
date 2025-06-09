@@ -72,6 +72,12 @@ export default function GamePage() {
   return (
     <div className="text-center p-4 font-gummy text-lg md:my-6">
       <h1 className="hidden text-6xl m-8 font-bold md:mb-6">ASL Hangman</h1>
+      <WebcamCapture onPredict={handleGuess} />
+      <div className="flex flex-row justify-between">
+        <button onClick={handleConfirmLetter} disabled={!predictedLetter || guessedLetters.includes(predictedLetter.toUpperCase()) ||
+            gameWon || gameLost} className="border-2 p-1 rounded-lg bg-[#d8ebe5] text-[#83c0ae] "> Enter guess </button>
+      </div>
+      <p className="mt-4 text-xl mb-2">Predicted Letter: <strong>{predictedLetter}</strong></p>
       {gameWon && <p className="text-green-600 font-bold text-xl mb-2">Correct! you win</p>}
       {gameLost && <p className="text-red-600 font-bold text-xl mb-2">Game over. The word was {target}</p>}
       <button onClick={handleNewGame} className="border-2 bg-[#f4d6da] p-2 rounded-lg text-[#ef8a9b]">New Game </button>
@@ -86,12 +92,6 @@ export default function GamePage() {
       height={500}
       alt="ASL Fingerspelling chart"
       className="hidden md:ml-8"/>
-      </div>
-      <div className="mt-10">
-        <WebcamCapture onPredict={handleGuess} />
-        <p className="mt-4 text-xl mb-2">Predicted Letter: <strong>{predictedLetter}</strong></p>
-        <button onClick={handleConfirmLetter} disabled={!predictedLetter || guessedLetters.includes(predictedLetter.toUpperCase()) ||
-            gameWon || gameLost} className="border-2 p-2 rounded-lg bg-[#d8ebe5] text-[#83c0ae] "> Enter guess </button>
       </div>
       <button onClick={handelPrev}>Main Menu</button>
       </div>

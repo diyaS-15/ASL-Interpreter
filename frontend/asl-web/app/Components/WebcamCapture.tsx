@@ -1,19 +1,15 @@
 'use client';
 import React, { useRef, useState, useEffect } from "react";
 import axios from "axios";
-
 // axios helps make API requests 
-
 // interface = structure of object, tells WebcamCapture needs onPredict function
 interface WebcamCaptureProps {
   onPredict: (letter: string) => void; 
 }
-
 export default function WebcamCapture({ onPredict }: WebcamCaptureProps) {
   const videoRef = useRef<HTMLVideoElement>(null); // webcam input
   const canvasRef = useRef<HTMLCanvasElement>(null); // frame capture
-  const [loading, setLoading] = useState<boolean>(false); 
-
+  
   useEffect(() => {
     async function startCamera() {
       try {
@@ -27,12 +23,10 @@ export default function WebcamCapture({ onPredict }: WebcamCaptureProps) {
         console.error("Error accessing webcam:", err);
       }
     }
-
     startCamera();
   }, []);
 
   const captureAndPredict = () => {
-    setLoading(true);
     const video = videoRef.current;
     const canvas = canvasRef.current;
     if (!video || !canvas) return;
@@ -44,7 +38,6 @@ export default function WebcamCapture({ onPredict }: WebcamCaptureProps) {
     // converts to raw image data 
     canvas.toBlob(async (blob) => {
       if (!blob) {
-        setLoading(false);
         return;
       }
       // post request to predict
@@ -64,23 +57,20 @@ export default function WebcamCapture({ onPredict }: WebcamCaptureProps) {
         console.error("Prediction error:", error);
         onPredict("");
       }
-      setLoading(false);
     }, "image/jpeg");
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+    <div className="flex flex-col items-center">
       <video
         ref={videoRef}
-        style={{ width: 500, border: "1px solid black", borderRadius: 8 }}
+        className="w-150 border-1 border-solid border-black rounded-lg"
         autoPlay
         muted
         playsInline
       />
-      <canvas ref={canvasRef} style={{ display: "none" }} />
-      <button onClick={captureAndPredict} disabled={loading} style={{ marginTop: 10 }}>
-        {loading ? "Predicting..." : "Make guess"}
-      </button>
+      <canvas ref={canvasRef} className="hidden" />
+      <button onClick={captureAndPredict} className="mt-4 border-2 p-1 rounded-lg bg-[#d8ebe5] text-[#83c0ae]"> Make Guess</button>
     </div>
   );
 }
