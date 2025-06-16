@@ -2,7 +2,7 @@
 import { useRouter, useSearchParams} from 'next/navigation';
 import React, { useState, useRef, useEffect  } from 'react';
 import axios from "axios";
-import Image from 'next/image'; 
+import Image from 'next/image';
 import Link from 'next/link';
 
 const fruitList = ['APPLE', 'BANANA', 'LEMON', 'ORANGE', 'KIWI', 'BLUEBERRY', 'WATERMELON', 
@@ -20,7 +20,7 @@ function getRandomWord(category: string | null) {
   return list[randIndex];
 }
 
-export default function GamePage() {
+export default function LearnPage() {
   // routing + get categories
   const router = useRouter(); 
   const searchParams = useSearchParams(); 
@@ -114,7 +114,7 @@ export default function GamePage() {
   const gameLost = attempts <= 0;
   
   return (
-    <div className="text-center font-gummy text-lg h-screen md:my-2">
+    <div className="text-center font-gummy text-lg md:my-6">
       <nav className="flex justify-end">
         <ul className="flex flex-row px-4 gap-2">
           <Link href="/Rules">Rules</Link>
@@ -122,18 +122,17 @@ export default function GamePage() {
           <Link href="/Rules">Help</Link>
         </ul>
       </nav>
-      <div className="p-4 md:grid md:grid-cols-2">
-      <h1 className="hidden text-6xl m-8 font-bold md:mb-6">ASL Hangman</h1>
-      <div>
+      <div className="p-4">
+      <h1 className="text-4xl font-bold mb-3 md:mb-6">~Learn Mode~</h1>
       <video
         ref={videoRef}
-        className="w-130 border-1 border-solid border-black rounded-lg mx-auto"
+        className="w-150 border-1 border-solid border-black rounded-lg mx-auto"
         autoPlay
         muted
         playsInline
       />
       <canvas ref={canvasRef} className="hidden" />
-      <div className="flex flex-row justify-between my-4 md:mx-14">
+      <div className="flex flex-row justify-between my-4">
         <div>
         <p className="text-xl">Predicted Letter: <strong>{predictedLetter}</strong></p>
         </div>
@@ -143,29 +142,26 @@ export default function GamePage() {
             gameWon || gameLost} className=" border-2 p-1 rounded-lg bg-[#d8ebe5] text-[#83c0ae]"> Enter guess </button>
         </div>
       </div>
-      </div>
-      <div>
       {gameWon && <p className="text-green-600 font-bold text-xl mb-2">Correct! you win</p>}
       {gameLost && <p className="text-red-600 font-bold text-xl mb-2">Game over. The word was {target}</p>}
-      <div className="">
+      <div className="md:grid grid-cols-2 md:mx-8">
       <div>
       <p className="text-4xl m-4 ">{blanks.join(' ')}</p>
       <p className="font-medium">Guessed Letters: {guessedLetters.join(', ')}</p>
       <p className="font-medium">Attempts Left: {attempts}</p> {/* remove + replace w/ hangman figure later */}
+      <Image
+      src="/asl_az.jpeg"
+      width={500}
+      height={500}
+      alt="ASL Fingerspelling chart"
+      className="hidden md:ml-8"/>
       </div>
       <div className="my-4">
       <button onClick={handleNewGame} className="mr-2 border-2 bg-[#f4d6da] p-1 rounded-lg text-[#ef8a9b]">New Game </button>
       <button onClick={handelPrev} className="border-2 bg-[#f4d6da] p-1 rounded-lg text-[#ef8a9b]">Main Menu</button>
       </div>
-      <Image
-      src="/asl_az.jpeg"
-      width={400}
-      height={400}
-      alt="ASL Fingerspelling chart"
-      className="invisible md:ml-30 md:visible"/>
-      </div>
       </div>
     </div>
     </div>
-  );
-}
+    )
+    };

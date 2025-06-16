@@ -16,18 +16,18 @@ export default function Home() {
       router.push(`/Rules?mode=${mode}&category=${category}`);
     };
 
-    const toggleMode = (selectedMode) => {
+    const toggleMode = (selectedMode: string) => {
       setMode((prev) => (prev === selectedMode ? '' : selectedMode)); 
     };
-    const toggleCategory = (selectedCat) => {
+    const toggleCategory = (selectedCat: string ) => {
       setCategory((prev) => (prev === selectedCat ? '': selectedCat)); 
     };
 
     return(
         <div className="h-screen text-center font-gummy">
-            <h1 className="text-6xl m-8 font-bold md:mb-6">ASL Hangman</h1>
-            <p className="text-lg"> ~Select Mode~ </p>
-            <div className="flex flex-col items-center gap-4 my-4 content-center">
+            <h1 className="text-6xl m-8 font-bold md:my-15">ASL Hangman</h1>
+            <p className="text-lg md:mt-15"> ~Select Mode~ </p>
+            <div className="flex flex-col items-center gap-4 my-4 justify-center md:flex-row">
             <button onClick={() => toggleMode('learn')} className={`text-[#ef8a9b] hover:bg-[#f1c0c8] border-2 w-40 h-12 rounded-lg text-2xl transition-colors duration-200
             ${mode === 'learn' ? 'bg-[#f1c0c8]' : 'bg-[#f4d6da]' }
             `}> Learn </button>
@@ -36,7 +36,7 @@ export default function Home() {
             `}> Play </button>
             </div>
             <p className="text-lg mt-10"> ~Select Category~ </p>
-            <div className="flex flex-col items-center gap-4 my-4 content-center">
+            <div className="flex flex-col items-center gap-4 my-4 justify-center md:flex-row">
             <button onClick={() => toggleCategory('fruits')} className={`border-2  w-40 h-12 rounded-lg text-2xl text-[#83c0ae] hover:bg-[#bcd9cd] transition-colors duration-200
             ${category === 'fruits' ? 'bg-[#bcd9cd]' : 'bg-[#d8ebe5]' }
             `}> Fruits </button>
@@ -47,7 +47,7 @@ export default function Home() {
             ${category === 'animals' ? 'bg-[#bcd9cd]' : 'bg-[#d8ebe5]' }
             `}> Animals </button>
             </div>
-            <button  onClick={handelPlay} className="fixed bottom-4 right-14 bottom-10 w-14 h-14 flex items-center justify-center bg-[#fef6d8] hover:bg-[#fceba4] rounded-lg border-2 border-[#e6c269] text-[#e6c269]">
+            <button  onClick={handelPlay} className="fixed bottom-4 right-14 bottom-10 w-14 h-14 md:bottom-30 md:right-60 flex items-center justify-center bg-[#fef6d8] hover:bg-[#fceba4] rounded-lg border-2 border-[#e6c269] text-[#e6c269]">
                 <Play className="text-[#e6c269]" size={26} />
             </button>
         </div>
