@@ -47,10 +47,16 @@ export default function Home() {
             ${category === 'animals' ? 'bg-[#bcd9cd]' : 'bg-[#d8ebe5]' }
             `}> Animals </button>
             </div>
-            <button  onClick={handelPlay} className="fixed bottom-4 right-14 bottom-10 w-14 h-14 md:bottom-30 md:right-60 flex items-center justify-center bg-[#fef6d8] hover:bg-[#fceba4] rounded-lg border-2 border-[#e6c269] text-[#e6c269]">
+            <button  onClick={handelPlay} className="fixed bottom-4 right-14 bottom-10 w-14 h-14 flex items-center justify-center bg-[#fef6d8] hover:bg-[#fceba4] rounded-lg border-2 border-[#e6c269] text-[#e6c269] md:hidden">
                 <Play className="text-[#e6c269]" size={26} />
             </button>
-        </div>
+            <div className="hidden md:flex flex-col items-center justify-center mt-10">
+              <p className="text-lg mb-2">~ Start ~</p>
+              <button onClick={handelPlay} className="w-30 h-14 flex items-center justify-center bg-[#fef6d8] hover:bg-[#fceba4] rounded-lg border-2 border-[#e6c269] text-[#e6c269] text-2xl">
+                Play <Play className="text-[#e6c269] ml-4" size={26} /> 
+                </button>
+                </div>
+                </div>
     );
 };
 

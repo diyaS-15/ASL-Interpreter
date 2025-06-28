@@ -26,7 +26,11 @@ export default function Rules() {
             <div className="md:grid md:grid-cols-2 md:gap-6">
                 <p className="md:ml-6"> Goal: Guess the secret word before the hangman figure completed. <br/>
                     The hangman adds a component everytime the guessed letter is not in the word. <br/>
-                    Use the ASL Sign Guide to make A-Z to guess. Press guess and prepare your hand sign before the countdown.  </p>
+                    Use the ASL Sign Guide to make A-Z to guess. Press guess and prepare your hand sign before the countdown. <br/>
+                    1. There's a random secret word associated with the category. Try to guess it before the hangman is complete to win! <br/>
+                    2. Use the ASL Alphabet Sign Guide to guess the letter.  <br/>
+                    3. Select learn mode to be guided through the gestures and use play mode to practice <br/>
+                    </p>
                 <Image
                       src="/asl_az.jpeg"
                       width={450}
