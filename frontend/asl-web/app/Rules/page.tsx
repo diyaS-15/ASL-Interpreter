@@ -8,13 +8,14 @@ export default function Rules() {
     const searchParams = useSearchParams(); 
     const mode = searchParams.get('mode');
     const category = searchParams.get('category');
+    const username = searchParams.get('username');
     
     const handelNext = () => {
         if(mode === 'learn'){
-            router.push(`/Learn?mode=${mode}&category=${category}`);
+            router.push(`/Learn?mode=${mode}&category=${category}&username=${username}`);
         }
         else{
-            router.push(`/Game?mode=${mode}&category=${category}`);
+            router.push(`/Game?mode=${mode}&category=${category}&username=${username}`);
         }
     };
     const handelPrev = () => {
