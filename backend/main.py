@@ -150,3 +150,12 @@ def add_points(username:str, db:Session=Depends(get_db)):
     db.commit()
     return{"messgae":f"5 points added to {username}", "total points":player.points}
 
+# add learn points 
+@app.post("/players/{username}/add-learn-points/")
+def add_learn_points(username:str, db:Session=Depends(get_db)):
+    player = db.query(Player).filter(Player.username == username).first()
+    if not player:
+        raise HTTPException(status_code=404, detail="Player does not exist")
+    player.points += 2
+    db.commit()
+    return{"messgae":f"2 points added to {username}", "total points":player.points}

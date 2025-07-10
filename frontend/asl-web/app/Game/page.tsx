@@ -26,6 +26,7 @@ export default function GamePage() {
   const searchParams = useSearchParams(); 
   const mode = searchParams.get('mode');
   const category = searchParams.get('category');
+  const username = searchParams.get('username');
   const handelPrev = () => {
     router.push(`/`);
   };
@@ -109,9 +110,25 @@ export default function GamePage() {
     setAttempts(6);
     setPredictLetter('');
   };
+
+  const addPoints = async() => {
+    if(!username) return; 
+    try{
+      const response = await axios.post(`http://127.0.0.1:8000/players/${username}/add-points/`);
+      console.log("points added:", response.data)
+    } catch (error){
+      console.log("points not added:", error)
+    }
+  };
   
   const gameWon = blanks.join('') === target;
   const gameLost = attempts <= 0;
+
+  useEffect(() => {
+    if (gameWon){
+      addPoints();
+    }
+  }, [gameWon]); 
   
   return (
     <div className="text-center font-gummy text-lg h-screen md:my-2">

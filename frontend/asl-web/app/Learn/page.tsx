@@ -21,15 +21,19 @@ function getRandomWord(category: string | null) {
 }
 
 export default function LearnPage() {
+  // routing + get categories
   const router = useRouter();
   const searchParams = useSearchParams();
   const category = searchParams.get('category');
+  const mode = searchParams.get('mode');
+  const username = searchParams.get('username');
   const handelPrev = () => {
     router.push(`/`);
   };
-
+  // webcam + captured frame 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  // sets game initial vars
   const [target, setTarget] = useState(() => getRandomWord(category));
   const [blanks, setBlanks] = useState(Array(target.length).fill('_'));
   const [currentTargetLetter, setCurrentTargetLetter] = useState<string>('');
@@ -37,6 +41,7 @@ export default function LearnPage() {
   const [predictedLetter, setPredictedLetter] = useState<string>('');
   const [message, setMessage] = useState<string>('');
 
+  // start webcam 
   useEffect(() => {
     async function startCamera() {
       try {
@@ -57,6 +62,7 @@ export default function LearnPage() {
     }
   }, []);
 
+  // capture + predict
   const captureAndPredict = () => {
     const video = videoRef.current;
     const canvas = canvasRef.current;
@@ -90,7 +96,7 @@ export default function LearnPage() {
           if (nextIndex !== -1) {
             setCurrentTargetLetter(target[nextIndex]);
           } else {
-            setCurrentTargetLetter(''); // All letters revealed
+            setCurrentTargetLetter(''); // all letters revealed
           }
         } else {
           setAttempts(prev => prev - 1);
@@ -117,8 +123,24 @@ export default function LearnPage() {
     }
   };
 
+  const addLearnPoints = async() => {
+    if(!username) return; 
+    try{
+      const response = await axios.post(`http://127.0.0.1:8000/players/${username}/add-learn-points/`);
+      console.log("points added:", response.data)
+    } catch (error){
+      console.log("points not added:", error)
+    }
+  };
+
   const gameWon = blanks.join('') === target;
   const gameLost = attempts <= 0;
+
+    useEffect(() => {
+      if (gameWon){
+        addLearnPoints();
+      }
+    }, [gameWon]); 
 
   return (
     <div className="text-center font-gummy text-lg h-screen md:my-2">
