@@ -40,6 +40,9 @@ export default function LearnPage() {
   const [attempts, setAttempts] = useState(6);
   const [predictedLetter, setPredictedLetter] = useState<string>('');
   const [message, setMessage] = useState<string>('');
+  const [showRules, setShowRules] = useState(false);
+  const [showGuide, setShowGuide] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
 
   // start webcam 
   useEffect(() => {
@@ -145,10 +148,10 @@ export default function LearnPage() {
   return (
     <div className="text-center font-gummy text-lg h-screen md:my-2">
       <nav className="flex justify-end">
-        <ul className="flex flex-row px-4 gap-2">
-          <Link href="/Rules">Rules</Link>
-          <Link href="/Rules">Guide</Link>
-          <Link href="/Rules">Help</Link>
+        <ul className="flex flex-row px-4 gap-2 md:text-xl">
+          <button onClick={() => setShowRules(true)}>Rules</button>
+          <button onClick={() => setShowGuide(true)}>Guide</button>
+          <button onClick={() => setShowHelp(true)}>Help</button>
         </ul>
       </nav>
       <div className="p-4 md:grid md:grid-cols-2">
@@ -192,8 +195,8 @@ export default function LearnPage() {
           {message && <p className="mt-2">{message}</p>}
         </div>
         <div>
-          {gameWon && <p className="text-green-600 font-bold text-xl mb-2">You completed the word!</p>}
-          {gameLost && <p className="text-red-600 font-bold text-xl mb-2">Try Again. The word was {target}</p>}
+          {gameWon && <p className="text-xl mb-2"> <span className="text-green-600 font-bold ">Correct!</span> <br/> Try play mode or play again.</p>}
+          {gameLost && <p className="text-xl mb-2"> <span className="text-red-600 font-bold ">Ran out of attempts. the word was {target}. </span> <br/> Don't worry, try again! </p>}
           <div>
             <p className="text-4xl m-4">{blanks.join(' ')}</p>
             <p className="font-medium">Attempts Left: {attempts}</p>
@@ -211,6 +214,61 @@ export default function LearnPage() {
           />
         </div>
       </div>
+         {/* rules pop-up */}
+      {showRules && (
+        <div className="fixed inset-0 z-50 backdrop-blur-lg flex items-center justify-center">
+          <div className="bg-white rounded-lg p-6 w-10/12 max-h-[80vh] overflow-y-auto shadow-xl">
+            <h2 className="text-3xl font-bold mb-2">Rules</h2>
+            <p className="text-base md:text-lg">
+              Guess the ASL letters to complete the word. You have 6 attempts. <br/>
+              1. There's a random secret word associated with the category. Try to guess it before attempts run out to win! <br/>
+              2. Use the ASL Alphabet Sign guide to guess the letter.  <br/>
+              3. Select learn mode to be guided through the alphabets and select play mode to practice. <br/>
+            </p>
+            <button onClick={() => setShowRules(false)} className="mt-4 px-4 py-2 bg-[#f4d6da] bg-opacity-50 text-[#5f4842] border-1 rounded-lg">
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+      
+      {/* guide pop-up */}
+      {showGuide && (
+        <div className="fixed inset-0 z-50 backdrop-blur-lg flex items-center justify-center">
+          <div className="bg-white rounded-lg p-6 w-10/12 max-h-[80vh] overflow-y-auto shadow-xl">
+            <h2 className="text-2xl font-bold mb-2">Guide</h2>
+            <p className="text-base md:text-lg">
+              Use your webcam to sign a letter. Click "Make Guess" to predict and "Enter Guess" to send prediction. <br/>
+              <Image
+              src="/aslaz/mainaz.jpg"
+              width={220}
+              height={200}
+              alt="ASL Fingerspelling chart"
+              className="mx-auto my-2"/>
+            </p>
+            <button onClick={() => setShowGuide(false)} className="mt-4 px-4 py-2 bg-[#f4d6da] bg-opacity-50 text-[#5f4842] border-1 rounded-lg">
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+      
+      {/* help pop-up */}
+      {showHelp && (
+        <div className="fixed inset-0 z-50 backdrop-blur-lg flex items-center justify-center">
+          <div className="bg-white rounded-lg p-6 w-10/12 max-h-[80vh] overflow-y-auto shadow-xl">
+            <h2 className="text-2xl font-bold mb-2">Help</h2>
+            <p className="text-base mb-2 md:text-lg">
+              Make sure the webcam is on, hand and fingers are clearly visible. <br/>
+              For a description of how to make the ASL hand gestures, check out: </p>
+              <a href="https://www.deafblind.com/asl.html" target="_blank" rel="noopener noreferrer"
+              className="text-blue-600 underline hover:text-blue-800"> https://www.deafblind.com/asl.html </a> <br/>
+            <button onClick={() => setShowHelp(false)} className="mt-3 px-4 py-2 bg-[#f4d6da] bg-opacity-50 text-[#5f4842] border-1 rounded-lg">
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

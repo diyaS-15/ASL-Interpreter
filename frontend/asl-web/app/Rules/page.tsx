@@ -23,21 +23,25 @@ export default function Rules() {
     };
     return(
         <div className="font-gummy text-center text-xl m-6">
-            <h1 className="text-6xl font-bold mb-2 md:m-10">How-To & Rules</h1>
+            <h1 className="text-5xl font-bold mb-2 md:m-10">How-To & Rules</h1>
             <div className="md:grid md:grid-cols-2 md:gap-6">
-                <p className="md:ml-6"> Goal: Guess the secret word before the hangman figure completed. <br/>
-                    The hangman adds a component everytime the guessed letter is not in the word. <br/>
-                    Use the ASL Sign Guide to make A-Z to guess. Press guess and prepare your hand sign before the countdown. <br/>
-                    1. There's a random secret word associated with the category. Try to guess it before the hangman is complete to win! <br/>
-                    2. Use the ASL Alphabet Sign Guide to guess the letter.  <br/>
-                    3. Select learn mode to be guided through the gestures and use play mode to practice <br/>
+                <p className="md:ml-6 text-left md:text-center md:m-4 md:leading-loose">
+                    1. There's a random secret word associated with the category. Try to guess it before attempts run out to win! <br/>
+                    2. Use the ASL Alphabet Sign guide to guess the letter.  <br/>
+                    3. Select learn mode to be guided through the alphabets and select play mode to practice. <br/>
                     </p>
                 <Image
-                      src="/asl_az.jpeg"
-                      width={450}
-                      height={300}
+                      src="/aslaz/mainaz.jpg"
+                      width={200}
+                      height={100}
                       alt="ASL Fingerspelling chart"
-                      className="md:ml-5 lg:ml-30"/>
+                      className="mx-auto my-2 md:hidden"/>
+                <Image
+                      src="/aslaz/mainaz.jpg"
+                      width={270}
+                      height={200}
+                      alt="ASL Fingerspelling chart"
+                      className="mx-auto hidden md:block"/>
             </div>
             <div className="flex justify-between my-2">
             <button onClick={handelPrev}>
