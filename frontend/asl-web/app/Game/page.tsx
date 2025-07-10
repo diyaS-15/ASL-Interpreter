@@ -3,7 +3,6 @@ import { useRouter, useSearchParams} from 'next/navigation';
 import React, { useState, useRef, useEffect  } from 'react';
 import axios from "axios";
 import Image from 'next/image'; 
-import Link from 'next/link';
 
 const fruitList = ['APPLE', 'BANANA', 'LEMON', 'ORANGE', 'KIWI', 'BLUEBERRY', 'WATERMELON', 
   'COCONUT', 'LIME', 'LYCHEE', 'STRAWBERRY', 'PINEAPPLE', 'PAPAYA', 'PLUM', 'PEACH', 'APRICOT', 'PEAR', 'CHERRY','DATE'];
@@ -169,7 +168,7 @@ export default function GamePage() {
       </div>
       <div className="md:mt-30">
       {gameWon && <p className="text-xl mb-2"> <span className="text-green-600 font-bold ">Correct! you win.</span> <br/> Play again or Change modes in main menu.</p>}
-      {gameLost && <p className="text-xl mb-2"> <span className="text-red-600 font-bold ">Game Over, the word was {target}. </span> <br/> Play again or Switch to learn modes.</p>}
+      {gameLost && <p className="text-xl mb-2"> <span className="text-red-600 font-bold ">Game Over, the word was {target}. </span> <br/> Play again or Switch to learn mode.</p>}
       <div className="">
       <div>
       <p className="text-4xl m-4 ">{blanks.join(' ')}</p>

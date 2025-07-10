@@ -3,7 +3,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useState, useRef, useEffect } from 'react';
 import axios from "axios";
 import Image from 'next/image';
-import Link from 'next/link';
 
 const fruitList = ['APPLE', 'BANANA', 'LEMON', 'ORANGE', 'KIWI', 'BLUEBERRY', 'WATERMELON', 
   'COCONUT', 'LIME', 'LYCHEE', 'STRAWBERRY', 'PINEAPPLE', 'PAPAYA', 'PLUM', 'PEACH', 'APRICOT', 'PEAR', 'CHERRY','DATE'];
