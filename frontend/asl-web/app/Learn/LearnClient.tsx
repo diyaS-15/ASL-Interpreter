@@ -41,6 +41,7 @@ export default function LearnPage() {
   const [showRules, setShowRules] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
+  const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
   // start webcam 
   useEffect(() => {
@@ -79,7 +80,7 @@ export default function LearnPage() {
         const formData = new FormData();
         formData.append("file", blob, "capture.jpg");
         const response = await axios.post<{ prediction?: string }>(
-          "http://asl-hangman-env.eba-vmtjbx9u.us-west-2.elasticbeanstalk.com/predict/",
+          `${BASE_URL}/predict/`,
           formData,
           { headers: { "Content-Type": "multipart/form-data" } }
         );
@@ -127,7 +128,7 @@ export default function LearnPage() {
   const addLearnPoints = async() => {
     if(!username) return; 
     try{
-      const response = await axios.post(`http://asl-hangman-env.eba-vmtjbx9u.us-west-2.elasticbeanstalk.com/players/${username}/add-learn-points/`);
+      const response = await axios.post(`${BASE_URL}/players/${username}/add-learn-points/`);
       console.log("points added:", response.data)
     } catch (error){
       console.log("points not added:", error)

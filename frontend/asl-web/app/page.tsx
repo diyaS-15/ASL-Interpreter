@@ -15,6 +15,7 @@ export default function Home() {
     };
     const [leaderboard, setLeaderboard] = useState<Player[]>([]);
     const [showLeaderboard, setShowLeaderboard] = useState(false); 
+    const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
     
     const handelPlay = async() => {
       if (!mode || !category || !username){
@@ -22,7 +23,7 @@ export default function Home() {
         return;
       }
       try{
-        const response = await axios.post("http://asl-hangman-env.eba-vmtjbx9u.us-west-2.elasticbeanstalk.com/players/", {
+        const response = await axios.post(`${BASE_URL}/players/`, {
           username: username, 
         }); 
         const player = response.data; 
@@ -42,7 +43,7 @@ export default function Home() {
     };
 
     useEffect(() => {
-      axios.get("http://asl-hangman-env.eba-vmtjbx9u.us-west-2.elasticbeanstalk.com/leaderboard/")
+      axios.get(`${BASE_URL}/leaderboard/`)
       .then(response => setLeaderboard(response.data))
       .catch(error => console.error("failed to load leaderboard:", error));
     }, [])
