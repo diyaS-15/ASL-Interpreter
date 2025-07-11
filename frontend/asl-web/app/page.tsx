@@ -22,7 +22,7 @@ export default function Home() {
         return;
       }
       try{
-        const response = await axios.post("http://127.0.0.1:8000/players/", {
+        const response = await axios.post("http://asl-hangman-env.eba-vmtjbx9u.us-west-2.elasticbeanstalk.com/players/", {
           username: username, 
         }); 
         const player = response.data; 
@@ -42,7 +42,7 @@ export default function Home() {
     };
 
     useEffect(() => {
-      axios.get("http://127.0.0.1:8000/leaderboard/")
+      axios.get("http://asl-hangman-env.eba-vmtjbx9u.us-west-2.elasticbeanstalk.com/leaderboard/")
       .then(response => setLeaderboard(response.data))
       .catch(error => console.error("failed to load leaderboard:", error));
     }, [])

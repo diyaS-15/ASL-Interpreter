@@ -79,7 +79,7 @@ export default function GamePage() {
         const formData = new FormData();
         formData.append("file", blob, "capture.jpg");
         const response = await axios.post<{ prediction?: string }>(
-          "http://localhost:8000/predict/",
+          "http://asl-hangman-env.eba-vmtjbx9u.us-west-2.elasticbeanstalk.com/predict/",
           formData,
           { headers: { "Content-Type": "multipart/form-data" } }
         );
@@ -119,7 +119,7 @@ export default function GamePage() {
   const addPoints = async() => {
     if(!username) return; 
     try{
-      const response = await axios.post(`http://127.0.0.1:8000/players/${username}/add-points/`);
+      const response = await axios.post(`http://asl-hangman-env.eba-vmtjbx9u.us-west-2.elasticbeanstalk.com/players/${username}/add-points/`);
       console.log("points added:", response.data)
     } catch (error){
       console.log("points not added:", error)

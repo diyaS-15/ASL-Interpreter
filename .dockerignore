@@ -1,4 +1,9 @@
+__pycache__/
+*.pyc
+*.pyo
+*.log
+*.tmp
+frontend/
 .venv/
-__pycacche__/
-*.env
 .git/
+other_models/

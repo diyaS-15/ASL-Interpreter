@@ -1,0 +1,35 @@
+# Ignore frontend completely
+frontend/
+other_models/
+data/
+Test_Alphabet/
+test-set/ 
+
+# Ignore virtual environments
+.venv/
+env/
+venv/
+
+# Ignore Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore source control
+.git/
+.gitignore
+
+# Ignore local config and editor files
+.vscode/
+.idea/
+.dockerignore
+README.md
+
+# Ignore model files if large
+*.onnx
+*.h5
+
+# Ignore logs, temp files
+*.log
+*.tmp
