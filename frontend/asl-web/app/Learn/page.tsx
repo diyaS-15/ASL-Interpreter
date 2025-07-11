@@ -194,7 +194,7 @@ export default function LearnPage() {
         </div>
         <div>
           {gameWon && <p className="text-xl mb-2"> <span className="text-green-600 font-bold ">Correct!</span> <br/> Try play mode or play again.</p>}
-          {gameLost && <p className="text-xl mb-2"> <span className="text-red-600 font-bold ">Ran out of attempts. the word was {target}. </span> <br/> Don't worry, try again! </p>}
+          {gameLost && <p className="text-xl mb-2"> <span className="text-red-600 font-bold ">Ran out of attempts. the word was {target}. </span> <br/> Don&apos;t worry, try again! </p>}
           <div>
             <p className="text-4xl m-4">{blanks.join(' ')}</p>
             <p className="font-medium">Attempts Left: {attempts}</p>
