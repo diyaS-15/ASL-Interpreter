@@ -8,7 +8,7 @@ const fruitList = ['APPLE', 'BANANA', 'LEMON', 'ORANGE', 'KIWI', 'BLUEBERRY', 'W
   'COCONUT', 'LIME', 'LYCHEE', 'STRAWBERRY', 'PINEAPPLE', 'PAPAYA', 'PLUM', 'PEACH', 'APRICOT', 'PEAR', 'CHERRY','DATE'];
 const veggieList = ['ARTICHOKE', 'BROCCOLI', 'CABBAGE', 'CAULIFLOWER', 'CELERY', 'EGGPLANT', 'KALE', 'LETTUCE',
   'MUSHROOM', 'TOMATO', 'OKRA', 'CUCUMBER', 'POTATO', 'PEA', 'ONION', 'CORN', 'RADISH'];
-const animalList = ['DOG', 'CAT', 'FISH', 'BUNNY', 'BIRD', 'HAMSTER'];
+const animalList = ['DOG', 'CAT', 'FISH', 'RABBIT', 'BIRD', 'HAMSTER', 'TIGER', 'LION', 'ELEPHANT', 'HORSE', 'BEAR'];
 
 function getRandomWord(category: string | null) {
   let list: string[] = [];
@@ -24,7 +24,6 @@ export default function LearnPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const category = searchParams.get('category');
-  const mode = searchParams.get('mode');
   const username = searchParams.get('username');
   const handelPrev = () => {
     router.push(`/`);
@@ -62,7 +61,7 @@ export default function LearnPage() {
     if (firstIndex !== -1) {
       setCurrentTargetLetter(target[firstIndex]);
     }
-  }, []);
+  }, [target]);
 
   // capture + predict
   const captureAndPredict = () => {
@@ -142,7 +141,7 @@ export default function LearnPage() {
       if (gameWon){
         addLearnPoints();
       }
-    }, [gameWon]); 
+    }, [gameWon, addLearnPoints]); 
 
   return (
     <div className="text-center font-gummy text-lg h-screen md:my-2">
@@ -220,7 +219,7 @@ export default function LearnPage() {
             <h2 className="text-3xl font-bold mb-2">Rules</h2>
             <p className="text-base md:text-lg">
               Guess the ASL letters to complete the word. You have 6 attempts. <br/>
-              1. There's a random secret word associated with the category. Try to guess it before attempts run out to win! <br/>
+              1. There is a random secret word associated with the category. Try to guess it before attempts run out to win! <br/>
               2. Use the ASL Alphabet Sign guide to guess the letter.  <br/>
               3. Select learn mode to be guided through the alphabets and select play mode to practice. <br/>
             </p>

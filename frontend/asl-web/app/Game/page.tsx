@@ -8,7 +8,7 @@ const fruitList = ['APPLE', 'BANANA', 'LEMON', 'ORANGE', 'KIWI', 'BLUEBERRY', 'W
   'COCONUT', 'LIME', 'LYCHEE', 'STRAWBERRY', 'PINEAPPLE', 'PAPAYA', 'PLUM', 'PEACH', 'APRICOT', 'PEAR', 'CHERRY','DATE'];
 const veggieList = ['ARTICHOKE', 'BROCCOLI', 'CABBAGE', 'CAULIFLOWER', 'CELERY', 'EGGPLANT', 'KALE', 'LETTUCE',
   'MUSHROOM', 'TOMATO', 'OKRA', 'CUCUMBER', 'POTATO', 'PEA', 'ONION', 'CORN', 'RADISH']; 
-const animalList = ['DOG', 'CAT', 'FISH', 'BUNNY', 'BIRD', 'HAMSTER'];
+const animalList = ['DOG', 'CAT', 'FISH', 'RABBIT', 'BIRD', 'HAMSTER', 'TIGER', 'LION', 'ELEPHANT', 'HORSE', 'BEAR'];
 
 function getRandomWord(category: string | null) {
     let list: string[] = [];
@@ -23,12 +23,8 @@ export default function GamePage() {
   // routing + get categories
   const router = useRouter(); 
   const searchParams = useSearchParams(); 
-  const mode = searchParams.get('mode');
   const category = searchParams.get('category');
   const username = searchParams.get('username');
-  const [showContact, setShowContact] = useState(false);
-  const [formData, setFormData] = useState({ name: "", email: "", message: "" });
-  const [formSubmitted, setFormSubmitted] = useState(false);
   const handelPrev = () => {
     router.push(`/`);
   };
@@ -133,7 +129,7 @@ export default function GamePage() {
     if (gameWon){
       addPoints();
     }
-  }, [gameWon]); 
+  }, [gameWon, addPoints]); 
   
   return (
     <div className="text-center font-gummy text-lg h-screen md:my-2">
@@ -167,7 +163,7 @@ export default function GamePage() {
       </div>
       </div>
       <div className="md:mt-30">
-      {gameWon && <p className="text-xl mb-2"> <span className="text-green-600 font-bold ">Correct! you win.</span> <br/> Play again or Change modes in main menu.</p>}
+      {gameWon && <p className="text-xl mb-2"> <span className="text-green-600 font-bold ">Correct&nbsp;you win.</span> <br/> Play again or Change modes in main menu.</p>}
       {gameLost && <p className="text-xl mb-2"> <span className="text-red-600 font-bold ">Game Over, the word was {target}. </span> <br/> Play again or Switch to learn mode.</p>}
       <div className="">
       <div>
@@ -189,7 +185,7 @@ export default function GamePage() {
       <h2 className="text-2xl font-bold mb-2">Rules</h2>
       <p className="text-base md:text-lg">
         Guess the ASL letters to complete the word. You have 6 attempts. <br/>
-        1. There's a random secret word associated with the category. Try to guess it before attempts run out to win! <br/>
+        1. There is a random secret word associated with the category. Try to guess it before attempts run out to win! <br/>
         2. Use the ASL Alphabet Sign guide to guess the letter.  <br/>
         3. Select learn mode to be guided through the alphabets and select play mode to practice. <br/>
       </p>
@@ -206,7 +202,7 @@ export default function GamePage() {
     <div className="bg-white rounded-lg p-6 w-10/12 max-h-[80vh] overflow-y-auto shadow-xl">
       <h2 className="text-2xl font-bold mb-4">Guide</h2>
       <p className="text-base md:text-lg">
-        Use your webcam to sign a letter. Click "Make Guess" to predict and "Enter Guess" to send prediction. <br/>
+        Use your webcam to sign a letter. Click &quot;Make Guess&quot; to predict and &quot;Enter Guess&quot; to send prediction. <br/>
         <Image
         src="/aslaz/mainaz.jpg"
         width={220}

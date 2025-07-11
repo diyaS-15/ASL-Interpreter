@@ -26,7 +26,7 @@ export default function Rules() {
             <h1 className="text-5xl font-bold mb-2 md:m-10">How-To & Rules</h1>
             <div className="md:grid md:grid-cols-2 md:gap-6">
                 <p className="md:ml-6 text-left md:text-center md:m-4 md:leading-loose">
-                    1. There's a random secret word associated with the category. Try to guess it before attempts run out to win! <br/>
+                    1. There is a random secret word associated with the category. Try to guess it before attempts run out to win! <br/>
                     2. Use the ASL Alphabet Sign guide to guess the letter.  <br/>
                     3. Select learn mode to be guided through the alphabets and select play mode to practice. <br/>
                     </p>
