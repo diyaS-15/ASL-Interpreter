@@ -93,7 +93,7 @@ export default function LearnPage() {
           setBlanks(newBlanks);
           setMessage(`Correct! Letter "${letter}" revealed.`);
           // Find next letter
-          const nextIndex = newBlanks.findIndex((c, i) => c === '_');
+          const nextIndex = newBlanks.findIndex(c => c === '_');
           if (nextIndex !== -1) {
             setCurrentTargetLetter(target[nextIndex]);
           } else {
@@ -236,7 +236,7 @@ export default function LearnPage() {
           <div className="bg-white rounded-lg p-6 w-10/12 max-h-[80vh] overflow-y-auto shadow-xl">
             <h2 className="text-2xl font-bold mb-2">Guide</h2>
             <p className="text-base md:text-lg">
-              Use your webcam to sign a letter. Click "Make Guess" to predict and "Enter Guess" to send prediction. <br/>
+              Use your webcam to sign a letter. Click &quot;Make Guess&quot; to predict and &quot;Enter Guess&quot; to send prediction. <br/>
               <Image
               src="/aslaz/mainaz.jpg"
               width={220}
