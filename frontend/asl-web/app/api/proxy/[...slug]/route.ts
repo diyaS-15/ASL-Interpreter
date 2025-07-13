@@ -12,26 +12,41 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const slug = req.nextUrl.pathname.split('/api/proxy/')[1]; // extract dynamic path
-  const url = `${BACKEND_BASE_URL}/${slug}`;
+  const slugPath = req.nextUrl.pathname.replace(/^\/api\/proxy\//, '');
+  const url = `${BACKEND_BASE_URL}/${slugPath}`;
+  console.log('Proxying to:', url);
 
-  console.log("Proxying file upload to:", url);
+  // Detect if it's a form-data (like for /predict)
+  const contentType = req.headers.get("content-type") || "";
+  let res;
 
-  const formData = await req.formData();
+  if (contentType.includes("multipart/form-data")) {
+    const formData = await req.formData();
 
-  const response = await fetch(url, {
-    method: 'POST',
-    body: formData,
-  });
+    res = await fetch(url, {
+      method: 'POST',
+      body: formData,
+    });
 
-  const contentType = response.headers.get("content-type");
-
-  if (contentType?.includes("application/json")) {
-    const json = await response.json();
-    return NextResponse.json(json);
   } else {
-    const text = await response.text();
-    return new NextResponse(text, { status: response.status });
+    const body = await req.json();
+
+    res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+  }
+
+  // Handle JSON or text responses
+  const responseContentType = res.headers.get("content-type");
+
+  if (responseContentType?.includes("application/json")) {
+    const data = await res.json();
+    return NextResponse.json(data);
+  } else {
+    const text = await res.text();
+    return new NextResponse(text, { status: res.status });
   }
 }
 
