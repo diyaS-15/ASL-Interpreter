@@ -11,8 +11,9 @@ export async function GET(req: NextRequest) {
   return NextResponse.json(data);
 }
 
-export async function POST(req: NextRequest, context: { params: { slug: string[] } }) {
-  const url = `${BACKEND_BASE_URL}/${context.params.slug.join('/')}`;
+export async function POST(req: NextRequest) {
+  const slug = req.nextUrl.pathname.split('/api/proxy/')[1]; // extract dynamic path
+  const url = `${BACKEND_BASE_URL}/${slug}`;
 
   console.log("Proxying file upload to:", url);
 
