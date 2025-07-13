@@ -76,7 +76,8 @@ export default function GamePage() {
         formData.append("file", blob, "capture.jpg");
         const response = await axios.post<{ prediction?: string }>(
           '/api/proxy/predict',
-          formData
+          formData,
+          { headers: { "Content-Type": "multipart/form-data" } }
         );
         const letter = response.data.prediction || "";
         setPredictLetter(letter.toUpperCase());

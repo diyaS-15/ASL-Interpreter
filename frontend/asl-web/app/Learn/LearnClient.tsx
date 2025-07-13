@@ -79,7 +79,7 @@ export default function LearnPage() {
         const formData = new FormData();
         formData.append("file", blob, "capture.jpg");
         const response = await axios.post<{ prediction?: string }>(
-          '/api/proxy/predict',
+          '/api/proxy/predict/',
           formData,
           { headers: { "Content-Type": "multipart/form-data" } }
         );
