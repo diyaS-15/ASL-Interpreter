@@ -69,7 +69,10 @@ export default function GamePage() {
     if (!ctx) return;
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     canvas.toBlob(async (blob) => {
-      if (!blob) return;
+      if (!blob || blob.size === 0) {
+        console.error("Blob is empty or undefined. Capture failed.");
+        return;
+      }
       // sends to backend endpoint w/ axios 
       try {
         const formData = new FormData();
