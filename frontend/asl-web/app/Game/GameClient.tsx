@@ -40,7 +40,6 @@ export default function GamePage() {
   const [showRules, setShowRules] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
-  const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
   // start webcam 
   useEffect(() => {
@@ -76,7 +75,7 @@ export default function GamePage() {
         const formData = new FormData();
         formData.append("file", blob, "capture.jpg");
         const response = await axios.post<{ prediction?: string }>(
-          `${BASE_URL}/predict/`,
+          '/api/proxy/predict',
           formData,
           { headers: { "Content-Type": "multipart/form-data" } }
         );
@@ -116,7 +115,7 @@ export default function GamePage() {
   const addPoints = async() => {
     if(!username) return; 
     try{
-      const response = await axios.post(`${BASE_URL}/players/${username}/add-points/`);
+      const response = await axios.post(`/api/proxy/players/${username}/add-points/`);
       console.log("points added:", response.data)
     } catch (error){
       console.log("points not added:", error)

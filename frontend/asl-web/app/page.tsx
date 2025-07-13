@@ -15,7 +15,6 @@ export default function Home() {
     };
     const [leaderboard, setLeaderboard] = useState<Player[]>([]);
     const [showLeaderboard, setShowLeaderboard] = useState(false); 
-    const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
     
     const handelPlay = async() => {
       if (!mode || !category || !username){
@@ -23,7 +22,7 @@ export default function Home() {
         return;
       }
       try{
-        const response = await axios.post(`${BASE_URL}/players/`, {
+        const response = await axios.post('/api/proxy/players/', {
           username: username, 
         }); 
         const player = response.data; 
@@ -43,7 +42,7 @@ export default function Home() {
     };
 
     useEffect(() => {
-      axios.get(`${BASE_URL}/leaderboard/`)
+      axios.get('/api/proxy/leaderboard/')
       .then(response => setLeaderboard(response.data))
       .catch(error => console.error("failed to load leaderboard:", error));
     }, [])
