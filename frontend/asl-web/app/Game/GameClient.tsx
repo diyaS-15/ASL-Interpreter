@@ -100,7 +100,7 @@ export default function GamePage() {
   
       try {
         const response = await axios.post<{ prediction?: string, error?: string }>(
-          'api/proxy/predict/',
+          '/api/proxy/predict/',
           formData);
         console.log("Predict response:", response.data);
         if (response.data.error) {
@@ -146,7 +146,7 @@ export default function GamePage() {
   const addPoints = async() => {
     if(!username) return; 
     try{
-      const response = await axios.post(`api/proxy/players/${username}/add-points/`);
+      const response = await axios.post(`/api/proxy/players/${username}/add-points/`);
       console.log("points added:", response.data)
     } catch (error){
       console.log("points not added:", error)
