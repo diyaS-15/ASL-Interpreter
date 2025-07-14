@@ -5,6 +5,7 @@ export const runtime = 'nodejs'; // force node.js runtime, not edge
 const BACKEND_BASE_URL = 'http://asl-hangman-env.eba-vmtjbx9u.us-west-2.elasticbeanstalk.com';
 
 export async function GET(req: NextRequest) {
+    console.log("HIT get /api/proxy/players");
   const slugPath = req.nextUrl.pathname.replace(/^\/api\/proxy\//, '');
   const url = `${BACKEND_BASE_URL}/${slugPath}${req.nextUrl.search}`;
   console.log('Proxying GET to:', url);
@@ -14,6 +15,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+    console.log("HIT post /api/proxy/players");
   const slugPath = req.nextUrl.pathname.replace(/^\/api\/proxy\//, '');
   const url = `${BACKEND_BASE_URL}/${slugPath}`;
   console.log('Proxying POST to:', url);

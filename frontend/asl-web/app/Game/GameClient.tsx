@@ -43,53 +43,83 @@ export default function GamePage() {
 
   // start webcam 
   useEffect(() => {
+    let stream: MediaStream;
+  
     async function startCamera() {
       try {
-        // accesses webcam + connects w/ videoRef 
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        stream = await navigator.mediaDevices.getUserMedia({ video: true });
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
-          await videoRef.current.play();
+  
+          // Delay play slightly to avoid AbortError on fast refresh
+          setTimeout(() => {
+            videoRef.current?.play().catch((e) => {
+              console.warn("video play() failed:", e.message);
+            });
+          }, 200);
         }
       } catch (err) {
         console.error("webcam access error", err);
       }
     }
     startCamera();
+    // Cleanup on unmount
+    return () => {
+      if (stream) {
+        stream.getTracks().forEach((track) => track.stop());
+      }
+    };
   }, []);
+  
+  
 
   // capture + predict 
   const captureAndPredict = () => {
     const video = videoRef.current;
     const canvas = canvasRef.current;
     if (!video || !canvas) return;
+  
+    if (video.videoWidth === 0 || video.videoHeight === 0) {
+      console.warn("Video dimensions not ready yet");
+      return;
+    }
+  
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  
     canvas.toBlob(async (blob) => {
       if (!blob || blob.size === 0) {
-        console.error("Blob is empty or undefined. Capture failed.");
+        console.error("Blob is empty. Capture failed.");
         return;
       }
-      // sends to backend endpoint w/ axios 
+      console.log("Blob size: ", blob.size);
+      console.log("Blob type: ", blob.type);
+      const formData = new FormData();
+      formData.append("file", blob, "capture.jpg");
+  
       try {
-        const formData = new FormData();
-        formData.append("file", blob, "capture.jpg");
-        const response = await axios.post<{ prediction?: string }>(
-          '/api/proxy/predict',
-          formData,
-          { headers: { "Content-Type": "multipart/form-data" } }
-        );
-        const letter = response.data.prediction || "";
-        setPredictLetter(letter.toUpperCase());
+        const response = await axios.post<{ prediction?: string, error?: string }>(
+          'http://asl-hangman-env.eba-vmtjbx9u.us-west-2.elasticbeanstalk.com/predict',
+          formData);
+        console.log("Predict response:", response.data);
+        if (response.data.error) {
+          console.warn("Prediction failed:", response.data.error);
+          setPredictLetter('');
+        } else {
+          const letter = response.data.prediction || "";
+          setPredictLetter(letter.toUpperCase());
+        }
+  
       } catch (error) {
-        console.error("Prediction error:", error);
+        console.error("Prediction request error:", error);
         setPredictLetter('');
       }
     }, "image/jpeg");
   };
+  
 
   // checks if guess valid
   const handleConfirmLetter = () => {
@@ -118,7 +148,7 @@ export default function GamePage() {
   const addPoints = async() => {
     if(!username) return; 
     try{
-      const response = await axios.post(`/api/proxy/players/${username}/add-points/`);
+      const response = await axios.post(`http://asl-hangman-env.eba-vmtjbx9u.us-west-2.elasticbeanstalk.com/players/${username}/add-points/`);
       console.log("points added:", response.data)
     } catch (error){
       console.log("points not added:", error)

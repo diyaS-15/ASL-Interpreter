@@ -13,6 +13,9 @@ from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy import Column, Integer, String
 from pydantic import BaseModel
 from typing import List
+import logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 load_dotenv()
 app = FastAPI()
@@ -63,7 +66,7 @@ class PlayerOut(BaseModel):
 # allows Next.js frontend 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # For dev only, restrict in prod! (CHANGE to frontend url, http;//app-name.com <- whatever its deployed on)
+    allow_origins=["*"], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -99,18 +102,29 @@ def extract_features(image: Image.Image, label_hand: str = None):
             return np.array(features).reshape(1, -1)
     return None
 
+import logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
 @app.post("/predict/")
 async def predict(file: UploadFile = File(...)):
-    # reads file
-    contents = await file.read()
-    image = Image.open(io.BytesIO(contents))
-    features = extract_features(image)
-    if features is None:
-        return {"error": "No hand detected"}
-    # predicts + returns prediction
-    prediction = model.predict(features)
-    predicted_letter = le.inverse_transform(prediction)[0]
-    return {"prediction": predicted_letter}
+    try:
+        contents = await file.read()
+        logger.info(f"+++ Received file: {file.filename}, content-type: {file.content_type}, size: {len(contents)}")
+        image = Image.open(io.BytesIO(contents))
+        logger.info("+++ Image opened")
+        features = extract_features(image)
+        if features is None:
+            logger.info("+++ No hand detected")
+            return {"error": "No hand detected"}
+        prediction = model.predict(features)
+        predicted_letter = le.inverse_transform(prediction)[0]
+        logger.info(f"+++ Prediction complete: {predicted_letter}")
+        return {"prediction": predicted_letter}
+    except Exception as e:
+        logger.error(f"+++ Prediction failed: {str(e)}")
+        return {"error": "parsing body error"}
+
 
 @app.get("/")
 async def root():
