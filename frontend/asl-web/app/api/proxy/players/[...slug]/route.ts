@@ -16,8 +16,8 @@ export async function GET(req: NextRequest) {
     const data = await res.json();
     return NextResponse.json(data);
   } catch (err) {
-    console.error('Leaderboard proxy GET error:', err);
-    return NextResponse.json([], { status: 200 }); // return empty leaderboard so UI doesn't break
+    console.error('Proxy GET error:', err);
+    return NextResponse.json({ error: 'Backend unreachable' }, { status: 502 });
   }
 }
 
@@ -26,12 +26,21 @@ export async function POST(req: NextRequest) {
   const url = `${BACKEND_BASE_URL}/${slugPath}`;
   console.log('Proxying POST to:', url);
   try {
-    const body = await req.text();
-    const backendResponse = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: body || '{}',
-    });
+    const contentType = req.headers.get('content-type') || '';
+    let backendResponse: Response;
+
+    if (contentType.includes('multipart/form-data')) {
+      const formData = await req.formData();
+      backendResponse = await fetch(url, { method: 'POST', body: formData });
+    } else {
+      const body = await req.text();
+      backendResponse = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: body || '{}',
+      });
+    }
+
     const responseContentType = backendResponse.headers.get('content-type');
     if (responseContentType?.includes('application/json')) {
       const data = await backendResponse.json();
@@ -40,7 +49,7 @@ export async function POST(req: NextRequest) {
     const text = await backendResponse.text();
     return new NextResponse(text, { status: backendResponse.status });
   } catch (err) {
-    console.error('Leaderboard proxy POST error:', err);
+    console.error('Proxy POST error:', err);
     return NextResponse.json({ error: 'Backend unreachable' }, { status: 502 });
   }
 }

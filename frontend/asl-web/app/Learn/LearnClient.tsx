@@ -1,17 +1,17 @@
 'use client';
 import { useRouter, useSearchParams } from 'next/navigation';
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import axios from "axios";
 import Image from 'next/image';
 
-const fruitList = ['APPLE', 'BANANA', 'LEMON', 'ORANGE', 'KIWI', 'BLUEBERRY', 'WATERMELON', 
-  'COCONUT', 'LIME', 'LYCHEE', 'STRAWBERRY', 'PINEAPPLE', 'PAPAYA', 'PLUM', 'PEACH', 'APRICOT', 'PEAR', 'CHERRY','DATE'];
-const veggieList = ['ARTICHOKE', 'BROCCOLI', 'CABBAGE', 'CAULIFLOWER', 'CELERY', 'EGGPLANT', 'KALE', 'LETTUCE',
+const fruitList = ['APPLE', 'BANANA', 'LEMON', 'ORANGE', 'BLUEBERRY',
+  'COCONUT', 'LIME', 'LYCHEE', 'PINEAPPLE', 'PAPAYA', 'PLUM', 'PEACH', 'APRICOT', 'PEAR', 'CHERRY', 'DATE'];
+const veggieList = ['ARTICHOKE', 'BROCCOLI', 'CABBAGE', 'CELERY', 'EGGPLANT', 'KALE', 'LETTUCE',
   'MUSHROOM', 'TOMATO', 'OKRA', 'CUCUMBER', 'POTATO', 'PEA', 'ONION', 'CORN', 'RADISH'];
 const animalList = ['DOG', 'CAT', 'FISH', 'RABBIT', 'BIRD', 'HAMSTER', 'TIGER', 'LION', 'ELEPHANT', 'HORSE', 'BEAR'];
 
 function getRandomWord(category: string | null) {
-  let list: string[] = [];
+  let list: string[] = fruitList;
   if (category === 'fruits') list = fruitList;
   else if (category === 'veggies') list = veggieList;
   else if (category === 'animals') list = animalList;
@@ -42,14 +42,19 @@ export default function LearnPage() {
   const [showGuide, setShowGuide] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
 
-  // start webcam 
+  // start webcam
   useEffect(() => {
+    let stream: MediaStream | null = null;
     async function startCamera() {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        stream = await navigator.mediaDevices.getUserMedia({ video: true });
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
-          await videoRef.current.play();
+          setTimeout(() => {
+            videoRef.current?.play().catch((e) => {
+              console.warn("video play() failed:", e.message);
+            });
+          }, 200);
         }
       } catch (err) {
         console.error("webcam access error", err);
@@ -61,6 +66,11 @@ export default function LearnPage() {
     if (firstIndex !== -1) {
       setCurrentTargetLetter(target[firstIndex]);
     }
+    return () => {
+      if (stream) {
+        stream.getTracks().forEach((track) => track.stop());
+      }
+    };
   }, [target]);
 
   // capture + predict
@@ -68,6 +78,12 @@ export default function LearnPage() {
     const video = videoRef.current;
     const canvas = canvasRef.current;
     if (!video || !canvas) return;
+
+    if (video.videoWidth === 0 || video.videoHeight === 0) {
+      console.warn("Video dimensions not ready yet");
+      return;
+    }
+
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     const ctx = canvas.getContext("2d");
@@ -78,11 +94,15 @@ export default function LearnPage() {
       try {
         const formData = new FormData();
         formData.append("file", blob, "capture.jpg");
-        const response = await axios.post<{ prediction?: string }>(
+        const response = await axios.post<{ prediction?: string; error?: string }>(
           '/api/proxy/predict/',
           formData,
           { headers: { "Content-Type": "multipart/form-data" } }
         );
+        if (response.data.error) {
+          setMessage('No hand detected. Make sure your hand is visible.');
+          return;
+        }
         const letter = response.data.prediction?.toUpperCase() || '';
         setPredictedLetter(letter);
         if (letter === currentTargetLetter) {
@@ -124,15 +144,15 @@ export default function LearnPage() {
     }
   };
 
-  const addLearnPoints = async() => {
-    if(!username) return; 
-    try{
+  const addLearnPoints = useCallback(async () => {
+    if (!username) return;
+    try {
       const response = await axios.post(`/api/proxy/players/${username}/add-learn-points/`);
-      console.log("points added:", response.data)
-    } catch (error){
-      console.log("points not added:", error)
+      console.log("points added:", response.data);
+    } catch (error) {
+      console.log("points not added:", error);
     }
-  };
+  }, [username]);
 
   const gameWon = blanks.join('') === target;
   const gameLost = attempts <= 0;

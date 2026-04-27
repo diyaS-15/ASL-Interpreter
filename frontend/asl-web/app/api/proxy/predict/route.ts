@@ -3,11 +3,11 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export const runtime = 'nodejs';
 
-const BACKEND_BASE_URL = 'http://asl-hangman-env.eba-vmtjbx9u.us-west-2.elasticbeanstalk.com';
+const BACKEND_BASE_URL = process.env.BACKEND_URL || 'http://localhost:8000';
 
 export async function POST(req: NextRequest) {
     console.log("HIT /api/proxy/predict");
-  const url = `${BACKEND_BASE_URL}/predict`;
+  const url = `${BACKEND_BASE_URL}/predict/`;
   const formData = await req.formData();
 
   // Debugging

@@ -8,7 +8,7 @@ import mediapipe as mp
 import os 
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy import Column, Integer, String
 from pydantic import BaseModel
@@ -17,19 +17,32 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 load_dotenv()
 app = FastAPI()
 
-# DATABASE SETUP
+# DATABASE SETUP — use PostgreSQL if env vars are set, otherwise fall back to local SQLite
 DB_HOST = os.getenv("HOST")
 DB_PORT = "5432"
 DB_NAME = os.getenv("NAME")
 DB_USER = "postgres"
 DB_PASS = os.getenv("PASS")
 
-SQLALCHEMY_DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+def _make_engine():
+    if DB_HOST and DB_NAME and DB_PASS:
+        try:
+            pg_url = f"postgresql://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+            pg_engine = create_engine(pg_url)
+            pg_engine.connect().close()  # test connection eagerly
+            logger.info("Connected to PostgreSQL")
+            return pg_engine
+        except Exception as e:
+            logger.warning(f"PostgreSQL unavailable ({e}) — falling back to SQLite")
+    else:
+        logger.warning("PostgreSQL env vars not set — using SQLite")
+    return create_engine("sqlite:///./asl_hangman.db", connect_args={"check_same_thread": False})
 
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
+engine = _make_engine()
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
@@ -41,7 +54,6 @@ class Player(Base):
     username = Column(String, unique=True, index=True)
     points = Column(Integer, default=0)
 
-# Create table if nonexistent
 Base.metadata.create_all(bind=engine)
 
 def get_db():
@@ -60,14 +72,13 @@ class PlayerOut(BaseModel):
     username: str
     points: int
 
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
 
 # allows Next.js frontend 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], 
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -101,10 +112,6 @@ def extract_features(image: Image.Image, label_hand: str = None):
         if len(features) == 63:
             return np.array(features).reshape(1, -1)
     return None
-
-import logging
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
 
 @app.post("/predict/")
 async def predict(file: UploadFile = File(...)):
@@ -162,7 +169,7 @@ def add_points(username:str, db:Session=Depends(get_db)):
         raise HTTPException(status_code=404, detail="Player does not exist")
     player.points += 5
     db.commit()
-    return{"messgae":f"5 points added to {username}", "total points":player.points}
+    return{"message":f"5 points added to {username}", "total points":player.points}
 
 # add learn points 
 @app.post("/players/{username}/add-learn-points/")
@@ -172,4 +179,4 @@ def add_learn_points(username:str, db:Session=Depends(get_db)):
         raise HTTPException(status_code=404, detail="Player does not exist")
     player.points += 2
     db.commit()
-    return{"messgae":f"2 points added to {username}", "total points":player.points}
+    return{"message":f"2 points added to {username}", "total points":player.points}

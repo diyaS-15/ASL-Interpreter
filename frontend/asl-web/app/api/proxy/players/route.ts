@@ -1,54 +1,46 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-export const runtime = 'nodejs'; // force node.js runtime, not edge
+export const runtime = 'nodejs';
 
-const BACKEND_BASE_URL = 'http://asl-hangman-env.eba-vmtjbx9u.us-west-2.elasticbeanstalk.com';
+const BACKEND_BASE_URL = process.env.BACKEND_URL || 'http://localhost:8000';
 
 export async function GET(req: NextRequest) {
-    console.log("HIT get /api/proxy/players");
   const slugPath = req.nextUrl.pathname.replace(/^\/api\/proxy\//, '');
   const url = `${BACKEND_BASE_URL}/${slugPath}${req.nextUrl.search}`;
   console.log('Proxying GET to:', url);
-  const res = await fetch(url);
-  const data = await res.json();
-  return NextResponse.json(data);
+  try {
+    const res = await fetch(url);
+    if (!res.ok) {
+      return NextResponse.json({ error: `Backend error: ${res.status}` }, { status: res.status });
+    }
+    const data = await res.json();
+    return NextResponse.json(data);
+  } catch (err) {
+    console.error('Players proxy GET error:', err);
+    return NextResponse.json({ error: 'Backend unreachable' }, { status: 502 });
+  }
 }
 
 export async function POST(req: NextRequest) {
-    console.log("HIT post /api/proxy/players");
   const slugPath = req.nextUrl.pathname.replace(/^\/api\/proxy\//, '');
   const url = `${BACKEND_BASE_URL}/${slugPath}`;
   console.log('Proxying POST to:', url);
-
-  const contentType = req.headers.get("content-type") || "";
-  let backendResponse;
-
-  if (contentType.includes("multipart/form-data")) {
-    const formData = await req.formData();
-
-    backendResponse = await fetch(url, {
-      method: 'POST',
-      body: formData,
-    });
-  } else {
-    const body = await req.json();
-
-    backendResponse = await fetch(url, {
+  try {
+    const body = await req.text();
+    const backendResponse = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
+      body: body || '{}',
     });
-  }
-
-  const responseContentType = backendResponse.headers.get("content-type");
-
-  if (responseContentType?.includes("application/json")) {
-    const data = await backendResponse.json();
-    return NextResponse.json(data);
-  } else {
+    const responseContentType = backendResponse.headers.get('content-type');
+    if (responseContentType?.includes('application/json')) {
+      const data = await backendResponse.json();
+      return NextResponse.json(data, { status: backendResponse.status });
+    }
     const text = await backendResponse.text();
     return new NextResponse(text, { status: backendResponse.status });
+  } catch (err) {
+    console.error('Players proxy POST error:', err);
+    return NextResponse.json({ error: 'Backend unreachable' }, { status: 502 });
   }
 }
-
-// Add delete if needed

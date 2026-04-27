@@ -1,20 +1,20 @@
 'use client'
 import { useRouter, useSearchParams} from 'next/navigation';
-import React, { useState, useRef, useEffect  } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import axios from "axios";
 import Image from 'next/image'; 
 
-const fruitList = ['APPLE', 'BANANA', 'LEMON', 'ORANGE', 'KIWI', 'BLUEBERRY', 'WATERMELON', 
-  'COCONUT', 'LIME', 'LYCHEE', 'STRAWBERRY', 'PINEAPPLE', 'PAPAYA', 'PLUM', 'PEACH', 'APRICOT', 'PEAR', 'CHERRY','DATE'];
-const veggieList = ['ARTICHOKE', 'BROCCOLI', 'CABBAGE', 'CAULIFLOWER', 'CELERY', 'EGGPLANT', 'KALE', 'LETTUCE',
-  'MUSHROOM', 'TOMATO', 'OKRA', 'CUCUMBER', 'POTATO', 'PEA', 'ONION', 'CORN', 'RADISH']; 
+const fruitList = ['APPLE', 'BANANA', 'LEMON', 'ORANGE', 'BLUEBERRY',
+  'COCONUT', 'LIME', 'LYCHEE', 'PINEAPPLE', 'PAPAYA', 'PLUM', 'PEACH', 'APRICOT', 'PEAR', 'CHERRY', 'DATE'];
+const veggieList = ['ARTICHOKE', 'BROCCOLI', 'CABBAGE', 'CELERY', 'EGGPLANT', 'KALE', 'LETTUCE',
+  'MUSHROOM', 'TOMATO', 'OKRA', 'CUCUMBER', 'POTATO', 'PEA', 'ONION', 'CORN', 'RADISH'];
 const animalList = ['DOG', 'CAT', 'FISH', 'RABBIT', 'BIRD', 'HAMSTER', 'TIGER', 'LION', 'ELEPHANT', 'HORSE', 'BEAR'];
 
 function getRandomWord(category: string | null) {
-    let list: string[] = [];
-    if(category === 'fruits') list = fruitList; 
-    else if(category === 'veggies') list = veggieList; 
-    else if(category === 'animals') list = animalList; 
+  let list: string[] = fruitList;
+  if (category === 'fruits') list = fruitList;
+  else if (category === 'veggies') list = veggieList;
+  else if (category === 'animals') list = animalList;
   const randIndex = Math.floor(Math.random() * list.length);
   return list[randIndex];
 }
@@ -143,15 +143,15 @@ export default function GamePage() {
     setPredictLetter('');
   };
 
-  const addPoints = async() => {
-    if(!username) return; 
-    try{
+  const addPoints = useCallback(async () => {
+    if (!username) return;
+    try {
       const response = await axios.post(`/api/proxy/players/${username}/add-points/`);
-      console.log("points added:", response.data)
-    } catch (error){
-      console.log("points not added:", error)
+      console.log("points added:", response.data);
+    } catch (error) {
+      console.log("points not added:", error);
     }
-  };
+  }, [username]);
   
   const gameWon = blanks.join('') === target;
   const gameLost = attempts <= 0;
