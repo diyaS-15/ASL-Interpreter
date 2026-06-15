@@ -106,6 +106,20 @@ npm start       # next start
 npm run lint    # next lint
 ```
 
+### Running the tests
+
+Backend has a pytest suite under `backend/tests/`. MediaPipe, the trained models, the database, and `load_dotenv` are all stubbed at import time, so the suite needs no webcam, no model files, and never touches the real Postgres/RDS or the dev SQLite file.
+
+```bash
+cd backend
+pip install -r requirements-dev.txt
+pytest --cov=main --cov-report=term-missing
+```
+
+`backend/pyproject.toml` sets `testpaths` and `pythonpath` so `pytest` works from `backend/` regardless of how it's invoked. Current coverage on `main.py`: **94%** (the only uncovered lines are the live PostgreSQL connection path in `_make_engine`, which is intentionally bypassed in tests).
+
+> Note: `/predict/` currently returns HTTP 200 with `{"error": "parsing body error"}` for malformed uploads — the test suite asserts the current behavior. A follow-up should change this to a 4xx.
+
 ### Rebuild the model (optional)
 
 ```bash
