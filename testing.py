@@ -1,32 +1,56 @@
-import pandas as pd 
-from sklearn.preprocessing import LabelEncoder
+"""
+Local batch test: score every trained model against test-landmarks.csv.
+
+Loads from other_models/ (where the trained artifacts live) and needs no
+MediaPipe, so it runs anywhere pandas + sklearn + numpy are installed. The CNN
+comes from a .npz read by cnn_predict, not a pickle, so no deep-learning
+dependency is required either.
+"""
+
+import os
+
 import joblib
+import pandas as pd
+from sklearn.metrics import accuracy_score, classification_report
 
-# import mediapipe landmarks of test-set
-df = pd.read_csv('test-landmarks2.csv')
-labels = df['label'].values
-X = df.drop(columns=['label']).values
+from cnn_predict import LandmarkCNNPredictor
 
-# saved models
-mlp_model = joblib.load('asl_model.pkl')
-rf_model = joblib.load('asl_rf_model.pkl')
-svm_model = joblib.load('asl_svm_model.pkl')
-le = joblib.load("label_encoder.pkl")  # label encoder used during training 
-y = le.transform(labels)  # converts alphabets to number 
+MODEL_DIR = "other_models"
+LANDMARKS_CSV = "test-landmarks.csv"
+MODELS = {
+    "MLP": "asl_model.pkl",
+    "RF": "asl_rf_model.pkl",
+    "SVM": "asl_svm_model.pkl",
+    "CNN": "asl_cnn_model.npz",
+}
 
-y_pred = mlp_model.predict(X)
-y_rf_pred = rf_model.predict(X)
-y_svm_pred = svm_model.predict(X)
 
-from sklearn.metrics import classification_report, accuracy_score
-print("MLP") 
-print(classification_report(y, y_pred, target_names=le.classes_))
-print("Accuracy:", accuracy_score(y, y_pred))
+def load_model(path):
+    if path.endswith(".npz"):
+        return LandmarkCNNPredictor.load(path)
+    return joblib.load(path)
 
-print("RF") 
-print(classification_report(y, y_rf_pred, target_names=le.classes_))
-print("Accuracy:", accuracy_score(y, y_rf_pred))
 
-print("SVM") 
-print(classification_report(y, y_svm_pred, target_names=le.classes_))
-print("Accuracy:", accuracy_score(y, y_svm_pred))
+df = pd.read_csv(LANDMARKS_CSV)
+labels = df["label"].values
+X = df.drop(columns=["label"]).values
+
+le = joblib.load(os.path.join(MODEL_DIR, "label_encoder.pkl"))
+y = le.transform(labels)
+
+summary = {}
+for name, fname in MODELS.items():
+    path = os.path.join(MODEL_DIR, fname)
+    if not os.path.exists(path):
+        print(f"[skip] {name}: {path} not found")
+        continue
+
+    y_pred = load_model(path).predict(X)
+    summary[name] = accuracy_score(y, y_pred)
+    print(f"\n=== {name} ===")
+    print(classification_report(y, y_pred, target_names=le.classes_, zero_division=0))
+    print("Accuracy:", summary[name])
+
+print(f"\n{'model':<8}{'accuracy':>10}")
+for name, acc in sorted(summary.items(), key=lambda kv: -kv[1]):
+    print(f"{name:<8}{acc*100:>9.1f}%")

@@ -19,7 +19,7 @@ A global leaderboard tracks points across players.
 | -------- | ---------------------------------------------------------------------------------- |
 | Frontend | Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS 4, axios, lucide-react |
 | Backend  | FastAPI, Uvicorn, Pydantic, SQLAlchemy                                             |
-| ML / CV  | MediaPipe Hands, scikit-learn (MLP, RandomForest, SVM), NumPy, Pandas, Pillow      |
+| ML / CV  | MediaPipe Hands, scikit-learn (MLP, RandomForest, SVM), 1D CNN (PyTorch, NumPy inference), NumPy, Pandas, Pillow |
 | Database | PostgreSQL (production) with SQLite fallback (local)                               |
 | Deploy   | Docker, AWS Elastic Beanstalk (backend), AWS RDS (Postgres)                        |
 
@@ -85,11 +85,21 @@ Consumed by the Next.js proxy routes in `app/api/proxy/*/route.ts`.
 
 ### Run the backend
 
-From the `backend/` directory (so it can find `asl_model.pkl` and `label_encoder.pkl`):
+From the `backend/` directory (so it can find `asl_model.pkl` and `label_encoder.pkl`),
+with `backend/.venv` activated:
 
 ```bash
+cd backend
+source .venv/bin/activate     # prompt should read (asl-backend)
 uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
+
+> **Important:** use `backend/.venv`, not the repo-root `.venv`. The root venv is a
+> general-purpose ML environment that also has `tensorflow` installed; because
+> MediaPipe bundles its own TFLite/Abseil runtime, loading both in one process
+> crashes the server at startup with
+> `libc++abi: ... mutex lock failed: Invalid argument`. If you hit that error, run
+> `which python` — you're in the wrong venv.
 
 ### Run the frontend
 
@@ -131,6 +141,54 @@ python static_predict.py      # train MLP, RandomForest, SVM on data/asl_*.csv a
 
 `static_predict.py` writes `asl_model.pkl`, `asl_rf_model.pkl`, `asl_svm_model.pkl`, and `label_encoder.pkl` to the current directory. Move the MLP model and encoder into `backend/` to serve them.
 
+A fourth model, a 1D CNN over the 21-landmark tensor (x/y/z as channels), trains separately:
+
+```bash
+.venv-cnn/bin/python train_cnn.py   # -> other_models/asl_cnn_model.npz
+```
+
+It needs torch, so it uses its own isolated venv — torch/tensorflow must not be installed
+next to MediaPipe (see the warning above). Weights export to a plain `.npz` and
+`cnn_predict.py` runs the forward pass in NumPy alone, so scoring and serving need no
+deep-learning dependency.
+
+### Comparing models
+
+```bash
+python extract_landmarks.py      # step 1: images -> landmarks_<dataset>.csv (uses MediaPipe)
+python score_from_landmarks.py   # step 2: score all models -> results.json (no MediaPipe)
+```
+
+Current accuracy on detected hands (unseen signers):
+
+| model | test-set (n=780) | Test_Alphabet (n=2600) |
+| --- | --- | --- |
+| MLP *(currently served)* | 23.1% | 38.3% |
+| RF | **30.9%** | 45.5% |
+| SVM | 26.1% | 49.6% |
+| CNN | 30.2% | **50.3%** |
+
+All four score >99% on an internal random split but 30–50% on unseen signers, so the
+limiting factor is the training data (one signer, no scale normalization, and a leaky
+random split across near-duplicate webcam frames), not the model architecture.
+
+### Local testing
+
+Both scripts load every model (MLP/RF/SVM/CNN) from `other_models/`:
+
+```bash
+python testing.py                      # batch: score all models on test-landmarks.csv
+backend/.venv/bin/python localpredict.py       # live webcam, CNN by default
+backend/.venv/bin/python localpredict.py SVM   # pick another model
+```
+
+`localpredict.py` needs cv2 + MediaPipe and shows a per-frame confidence, reporting
+"unsure" below `MIN_CONFIDENCE`. Use `backend/.venv` for it — it has a working
+MediaPipe 0.10.15 plus cv2 and no tensorflow, whereas the root venv's MediaPipe
+aborts intermittently. Note `MIRROR_LEFT_HAND` defaults to `False` to match how
+`capture_data.py` recorded the training data; `backend/main.py` currently *does*
+mirror left hands, so that flag is the switch for A/B-ing the mismatch.
+
 ## Project structure
 
 ```
@@ -152,6 +210,10 @@ python static_predict.py      # train MLP, RandomForest, SVM on data/asl_*.csv a
 ├── other_models/            # alternate trained classifiers (RF, SVM)
 ├── capture_data.py          # webcam → landmark CSV collector
 ├── static_predict.py        # trains MLP/RF/SVM on landmark CSVs
+├── train_cnn.py             # trains the 1D landmark CNN (torch) -> .npz weights
+├── cnn_predict.py           # pure-NumPy CNN inference (sklearn-style .predict)
+├── extract_landmarks.py     # eval step 1: images -> landmark CSVs
+├── score_from_landmarks.py  # eval step 2: score all 4 models -> results.json
 ├── localpredict.py          # local prediction helper
 ├── image-landmarks.py       # static image landmark extractor
 ├── game.py                  # standalone game prototype

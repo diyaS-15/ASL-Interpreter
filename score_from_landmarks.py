@@ -1,6 +1,7 @@
 """
-Step 2 of evaluation: score the extracted landmark CSVs against the three models
-and write results.json. Pure sklearn/pandas (no MediaPipe), so it cannot crash.
+Step 2 of evaluation: score the extracted landmark CSVs against the trained
+models and write results.json. Pure sklearn/NumPy/pandas (no MediaPipe, no
+torch/tensorflow), so it cannot crash.
 
 Accuracy is computed only over images where a hand was detected; detection_rate
 reports what fraction of each set was testable.
@@ -15,9 +16,16 @@ import pandas as pd
 import joblib
 from sklearn.metrics import accuracy_score, classification_report
 
+from cnn_predict import LandmarkCNNPredictor
+
 MODEL_DIR = "other_models"
 DATASETS = ["test-set", "Test_Alphabet"]
-MODELS = {"MLP": "asl_model.pkl", "RF": "asl_rf_model.pkl", "SVM": "asl_svm_model.pkl"}
+MODELS = {
+    "MLP": "asl_model.pkl",
+    "RF": "asl_rf_model.pkl",
+    "SVM": "asl_svm_model.pkl",
+    "CNN": "asl_cnn_model.npz",
+}
 FEATURE_COLS = [f"f{i}" for i in range(63)]
 OUTPUT_JSON = "results.json"
 
@@ -78,9 +86,21 @@ def score_dataset(data_dir, le, models):
     return result
 
 
+def load_model(path):
+    if path.endswith(".npz"):
+        return LandmarkCNNPredictor.load(path)
+    return joblib.load(path)
+
+
 def main():
     le = joblib.load(os.path.join(MODEL_DIR, "label_encoder.pkl"))
-    models = {n: joblib.load(os.path.join(MODEL_DIR, f)) for n, f in MODELS.items()}
+    models = {}
+    for name, fname in MODELS.items():
+        path = os.path.join(MODEL_DIR, fname)
+        if os.path.exists(path):
+            models[name] = load_model(path)
+        else:
+            print(f"[skip] {name}: {path} not found")
 
     output = {
         "generated_utc": datetime.now(timezone.utc).isoformat(),
@@ -94,10 +114,10 @@ def main():
         json.dump(output, f, indent=2)
 
     # Console summary
-    print(f"{'dataset':<16}{'detect%':>9}{'MLP':>8}{'RF':>8}{'SVM':>8}")
+    print(f"{'dataset':<16}{'detect%':>9}" + "".join(f"{m:>8}" for m in models))
     for ds, r in output["datasets"].items():
         row = f"{ds:<16}{r['detection_rate']*100:>8.1f}%"
-        for m in MODELS:
+        for m in models:
             acc = r["models"].get(m, {}).get("accuracy_on_detected")
             row += f"{acc*100:>7.1f}%" if acc is not None else f"{'-':>8}"
         print(row)
