@@ -1,5 +1,7 @@
 # ASL Hangman
 
+[![CI](https://github.com/diyaS-15/ASL-Interpreter/actions/workflows/ci.yml/badge.svg)](https://github.com/diyaS-15/ASL-Interpreter/actions/workflows/ci.yml)
+
 A gamified full-stack web app for learning and practicing the American Sign Language alphabet.
 
 ## Overview
@@ -118,7 +120,7 @@ pytest --cov=main --cov-report=term-missing
 
 `backend/pyproject.toml` sets `testpaths` and `pythonpath` so `pytest` works from `backend/` regardless of how it's invoked. Current coverage on `main.py`: **94%** (the only uncovered lines are the live PostgreSQL connection path in `_make_engine`, which is intentionally bypassed in tests).
 
-> Note: `/predict/` currently returns HTTP 200 with `{"error": "parsing body error"}` for malformed uploads — the test suite asserts the current behavior. A follow-up should change this to a 4xx.
+> Note: `/predict/` returns HTTP 400 (`{"detail": "Uploaded file is not a valid image"}`) for malformed uploads and HTTP 500 (`{"detail": "Prediction failed"}`) if inference itself fails. A successful request with no hand in frame is still HTTP 200 with `{"error": "No hand detected"}`, since that's a valid model outcome rather than a failure.
 
 ### Rebuild the model (optional)
 
@@ -156,6 +158,10 @@ python static_predict.py      # train MLP, RandomForest, SVM on data/asl_*.csv a
 ├── Dockerfile               # backend container image
 └── .elasticbeanstalk/       # AWS EB application config
 ```
+
+## Continuous integration
+
+`.github/workflows/ci.yml` runs on every push and pull request with three parallel jobs: **backend-tests** (Python 3.10, `pytest --cov=main`), **frontend-build** (Node 20, `npm ci` → `npm run lint` → `npm run build`), and **docker-build** (validates the backend `Dockerfile` builds; no push). The workflow has a commented stub where an Elastic Beanstalk deploy job will attach later — gated on `push` to `main` and `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` in repo secrets. It's disabled right now because the RDS instance and EB environment are torn down.
 
 ## Deployment
 

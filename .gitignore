@@ -1,5 +1,10 @@
 .venv/
 .env
+__pycache__/
+*.pyc
+.pytest_cache/
+.coverage
+backend/asl_hangman.db
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml

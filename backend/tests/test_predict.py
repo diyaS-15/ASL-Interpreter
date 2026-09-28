@@ -37,12 +37,10 @@ def test_predict_no_hand_returns_error(client, hands_process, make_result, jpeg_
 
 
 def test_predict_bad_upload_returns_parsing_error(client):
-    # NOTE: the endpoint catches every exception and responds 200 with
-    # {"error": "parsing body error"}. Follow-up: this should be a 4xx.
     r = client.post(
         "/predict/",
         files={"file": ("nope.jpg", io.BytesIO(b"definitely not an image"), "image/jpeg")},
     )
 
-    assert r.status_code == 200
-    assert r.json() == {"error": "parsing body error"}
+    assert r.status_code == 400
+    assert r.json() == {"detail": "Uploaded file is not a valid image"}

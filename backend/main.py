@@ -1,6 +1,6 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 import io
 import numpy as np
 import joblib
@@ -115,11 +115,18 @@ def extract_features(image: Image.Image, label_hand: str = None):
 
 @app.post("/predict/")
 async def predict(file: UploadFile = File(...)):
+    contents = await file.read()
+    logger.info(f"+++ Received file: {file.filename}, content-type: {file.content_type}, size: {len(contents)}")
+
     try:
-        contents = await file.read()
-        logger.info(f"+++ Received file: {file.filename}, content-type: {file.content_type}, size: {len(contents)}")
         image = Image.open(io.BytesIO(contents))
-        logger.info("+++ Image opened")
+        image.load()
+    except UnidentifiedImageError as e:
+        logger.warning(f"+++ Could not parse upload as an image: {e}")
+        raise HTTPException(status_code=400, detail="Uploaded file is not a valid image")
+    logger.info("+++ Image opened")
+
+    try:
         features = extract_features(image)
         if features is None:
             logger.info("+++ No hand detected")
@@ -130,7 +137,7 @@ async def predict(file: UploadFile = File(...)):
         return {"prediction": predicted_letter}
     except Exception as e:
         logger.error(f"+++ Prediction failed: {str(e)}")
-        return {"error": "parsing body error"}
+        raise HTTPException(status_code=500, detail="Prediction failed")
 
 
 @app.get("/")

@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
   if (contentType?.includes("application/json")) {
     const json = await res.json();
     console.log(`json: ${json}`);
-    return NextResponse.json(json);
+    return NextResponse.json(json, { status: res.status });
   } else {
     const text = await res.text();
     console.log(`text: ${text}`);
